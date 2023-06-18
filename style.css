@@ -1,46 +1,113 @@
-/*
-The City Lights
-HTML5 Canvas Visualization of Gert Strydom's Poem
-Dev: Steve Belovarich
-Website: stephenbelovarich.com
-
-Recently I've been experimenting with Javascript in ePub 3, primarily for iBooks. ePub breathes new life into poems and stories in ways that people haven't even begun to experiment with. Its a shame when firms just photocopy the physical version of a book into ePub. Authors lose out on so much potential interactivity.
-
-ePub is a wide frontier for developers and designers.
-
-If you've got an idea for an eBook and need and interactive designer to breathe life into the design, contact steve@installationspace.com. 
-*/
-
-body {margin:0;padding:0;}
-canvas{
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 }
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
 #poem {
-	position: absolute;
-	top: 150px;
-	left:50%;
-	width: 480px;
-	height: auto;
-	margin-left: -240px;
-	font: 1.4em "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-	font-weight: bold;
-	text-shadow: 0.12em 0.12em 0.36em #da6e0e;
-	color:#fff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80%;
+  max-width: 480px;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-weight: bold;
+  text-shadow: 0.12em 0.12em 0.36em #da6e0e;
+  color: #fff;
 }
+
 #poem ul {
-	list-style-type: none;
-	margin-left:-36px;
+  list-style-type: none;
+  padding: 0;
 }
+
 #poem li {
-	padding-bottom:0.8em;
-	opacity:0.8;
+  padding-bottom: 0.8em;
+  opacity: 0.8;
 }
-#poem h3 {
-	margin-right:64px;
-  margin-top:-12px;
-	text-align:right;
+
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+
+var winWidth = canvas.width = window.innerWidth;
+var winHeight = canvas.height = window.innerHeight;
+
+var circles = [];
+var circleAmt = 64;
+
+while (circleAmt--) circles.push(new circle());
+
+function circle() {
+  this.pos = {
+    x: Math.random() * winWidth,
+    y: Math.random() * winHeight
+  };
+
+  this.radius = 24.;
+
+  this.clr = {
+    r: 255,
+    g: Math.floor(Math.random() * (92 - 1) + 1),
+    b: 0,
+    a: 0.3
+  };
+  this.rgb = "rgba(" + this.clr.r + ", " + this.clr.g + ", " + this.clr.b + ", " + this.clr.a + ")";
+
+  this.vel = {
+    x: Math.floor(Math.random() * (2.6 - 1.8) + 1.8),
+    y: Math.floor(Math.random() * (1.1 - 1.0) + 1.0)
+  };
+
+  this.show = function () {
+    ctx.beginPath();
+    ctx.fillStyle = this.rgb;
+    ctx.arc(this.pos.x, this.pos.y, this.radius, Math.PI * 2, false);
+    ctx.shadowColor = this.rgb;
+    ctx.shadowBlur = 36;
+    ctx.fill();
+
+    this.updatePos();
+  };
+
+  this.updatePos = function () {
+    if (this.pos.x <= winWidth / 2) {
+      this.pos.x -= this.vel.x;
+      this.pos.y -= this.vel.y;
+      this.radius += 0.1;
+    } else {
+      this.pos.x += this.vel.x;
+      this.pos.y -= this.vel.y;
+      this.radius += 0.1;
+    }
+  };
 }
+
+function draw() {
+  ctx.fillStyle = "rgba(0,0,0,.75)";
+  ctx.fillRect(0, 0, winWidth, winHeight);
+
+  circles.forEach(function (v, i, arr) {
+    if (v.pos.x <= -64 || v.pos.x >= (winWidth + 64)) {
+      var arrayPos = circles.indexOf(v);
+      circles.splice(arrayPos, 1);
+      circles.push(new circle());
+    }
+    v.show();
+  });
+}
+
+let frame = function () {
+  draw();
+  window.requestAnimationFrame(frame);
+}
+
+window.requestAnimationFrame(frame);
