@@ -21,7 +21,7 @@ canvas{
 }
 #poem {
 	position: absolute;
-	top: 0px;
+	top: 150px;
 	left:50%;
 	width: 480px;
 	height: auto;
